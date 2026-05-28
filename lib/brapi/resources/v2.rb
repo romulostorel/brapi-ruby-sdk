@@ -24,6 +24,18 @@ module Brapi
       def prime_rate
         @prime_rate ||= Brapi::Resources::V2::PrimeRate.new(client)
       end
+
+      def fii
+        @fii ||= Brapi::Resources::V2::Fii.new(client)
+      end
+
+      def macro
+        @macro ||= Brapi::Resources::V2::Macro.new(client)
+      end
+
+      def treasury
+        @treasury ||= Brapi::Resources::V2::Treasury.new(client)
+      end
     end
   end
 end
