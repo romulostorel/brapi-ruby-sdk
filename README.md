@@ -9,7 +9,7 @@ This SDK provides parity with the official [brapi TypeScript](https://github.com
 Add this line to your application's Gemfile:
 
 ```ruby
-gem "brapi"
+gem "brapi-ruby-sdk"
 ```
 
 And then execute:
@@ -21,8 +21,10 @@ bundle install
 Or install it yourself:
 
 ```bash
-gem install brapi
+gem install brapi-ruby-sdk
 ```
+
+The gem package is `brapi-ruby-sdk` but you still `require "brapi"` and call `Brapi.*` in code.
 
 Requires Ruby >= 3.1.
 

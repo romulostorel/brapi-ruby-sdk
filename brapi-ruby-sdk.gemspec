@@ -3,7 +3,7 @@
 require_relative "lib/brapi/version"
 
 Gem::Specification.new do |spec|
-  spec.name = "brapi"
+  spec.name = "brapi-ruby-sdk"
   spec.version = Brapi::VERSION
   spec.authors = ["Rômulo Storel"]
   spec.email = ["romulo.storel@codeminer42.com"]
