@@ -34,27 +34,32 @@ module Brapi
       attribute :earnings_per_share, type: :float
       attribute :logourl, type: :string
 
-      # Module-only fields — exposed as raw hashes/arrays in v0.1.0.
-      # Dedicated typed models will land in subsequent minor versions.
-      attribute :summary_profile
+      # Fundamental module slots (typed)
+      attribute :summary_profile, type: Brapi::Models::SummaryProfile
       attribute :balance_sheet_history, type: [Brapi::Models::BalanceSheetEntry]
       attribute :balance_sheet_history_quarterly, type: [Brapi::Models::BalanceSheetEntry]
-      attribute :default_key_statistics
-      attribute :default_key_statistics_history
-      attribute :default_key_statistics_history_quarterly
-      attribute :income_statement_history
-      attribute :income_statement_history_quarterly
+      attribute :default_key_statistics, type: Brapi::Models::KeyStatisticsEntry
+      attribute :default_key_statistics_history, type: [Brapi::Models::KeyStatisticsEntry]
+      attribute :default_key_statistics_history_quarterly, type: [Brapi::Models::KeyStatisticsEntry]
+      attribute :income_statement_history, type: [Brapi::Models::IncomeStatementEntry]
+      attribute :income_statement_history_quarterly, type: [Brapi::Models::IncomeStatementEntry]
       attribute :financial_data, type: Brapi::Models::FinancialDataEntry
       attribute :financial_data_history, type: [Brapi::Models::FinancialDataEntry]
       attribute :financial_data_history_quarterly, type: [Brapi::Models::FinancialDataEntry]
-      attribute :value_added_history
-      attribute :value_added_history_quarterly
-      attribute :cashflow_history
-      attribute :cashflow_history_quarterly
+      attribute :value_added_history, type: [Brapi::Models::ValueAddedEntry]
+      attribute :value_added_history_quarterly, type: [Brapi::Models::ValueAddedEntry]
+      attribute :cashflow_history, type: [Brapi::Models::CashflowEntry]
+      attribute :cashflow_history_quarterly, type: [Brapi::Models::CashflowEntry]
 
-      # Historical price data when `range`/`interval` are passed.
-      attribute :historical_data_price
-      attribute :dividends_data
+      # Historical price data — returned when `range`/`interval` are passed.
+      attribute :used_interval, type: :string
+      attribute :used_range, type: :string
+      attribute :valid_intervals
+      attribute :valid_ranges
+      attribute :historical_data_price, type: [Brapi::Models::HistoricalDataPrice]
+
+      # Dividends — returned when `dividends=true`.
+      attribute :dividends_data, type: Brapi::Models::DividendsData
     end
   end
 end

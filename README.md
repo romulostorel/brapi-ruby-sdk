@@ -116,8 +116,14 @@ quote.regular_market_change_percent # => -0.95
 quote.market_cap                   # => 483937892568
 quote.fifty_two_week_range         # => "28.86 - 38.66"
 quote.financial_data               # => Brapi::Models::FinancialDataEntry
-quote.summary_profile              # => Hash with company info
-quote.historical_data_price        # => Array of price points (when range/interval are given)
+quote.summary_profile              # => Brapi::Models::SummaryProfile
+quote.summary_profile.industry     # => "Petróleo e Gás Integrado"
+quote.default_key_statistics       # => Brapi::Models::KeyStatisticsEntry
+quote.income_statement_history     # => [Brapi::Models::IncomeStatementEntry]
+quote.cashflow_history             # => [Brapi::Models::CashflowEntry]
+quote.value_added_history          # => [Brapi::Models::ValueAddedEntry]
+quote.historical_data_price        # => [Brapi::Models::HistoricalDataPrice]
+quote.dividends_data               # => Brapi::Models::DividendsData (cash + stock + subscriptions)
 ```
 
 ### Multi-ticker
