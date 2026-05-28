@@ -6,9 +6,20 @@ require "brapi/errors"
 require "brapi/model"
 require "brapi/resource"
 
-# Models — order matters: leaf classes before composite ones.
+# Models — leaf classes first, composite classes after.
 require "brapi/models/balance_sheet_entry"
 require "brapi/models/financial_data_entry"
+require "brapi/models/income_statement_entry"
+require "brapi/models/cashflow_entry"
+require "brapi/models/value_added_entry"
+require "brapi/models/key_statistics_entry"
+require "brapi/models/summary_profile"
+require "brapi/models/historical_data_price"
+require "brapi/models/cash_dividend"
+require "brapi/models/stock_dividend"
+require "brapi/models/subscription"
+require "brapi/models/dividends_data"
+
 require "brapi/models/quote"
 require "brapi/models/quote_retrieve_response"
 require "brapi/models/quote_list_item"
