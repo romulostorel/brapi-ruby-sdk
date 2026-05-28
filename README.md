@@ -1,5 +1,11 @@
 # brapi-ruby-sdk
 
+[![CI](https://github.com/romulostorel/brapi-ruby-sdk/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/romulostorel/brapi-ruby-sdk/actions/workflows/ci.yml)
+[![Gem Version](https://img.shields.io/gem/v/brapi-ruby-sdk.svg)](https://rubygems.org/gems/brapi-ruby-sdk)
+[![Downloads](https://img.shields.io/gem/dt/brapi-ruby-sdk.svg)](https://rubygems.org/gems/brapi-ruby-sdk)
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+[![Ruby](https://img.shields.io/badge/ruby-%3E%3D%203.1-red.svg)](https://www.ruby-lang.org/)
+
 Ruby SDK for the [brapi.dev](https://brapi.dev) API — Brazilian stock market quotes, cryptocurrencies, currency exchange rates, inflation (IPCA) and prime rate (SELIC) data.
 
 This SDK provides parity with the official [brapi TypeScript](https://github.com/brapi-dev/brapi-typescript) and [brapi Python](https://github.com/brapi-dev/brapi-python) SDKs, covering 11 endpoints in v0.1.
