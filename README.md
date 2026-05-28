@@ -93,6 +93,14 @@ client.quote.retrieve("PETR4")
 | `client.v2.inflation.list_available`   | `GET /api/v2/inflation/available`     | Countries with inflation data          |
 | `client.v2.prime_rate.retrieve(...)`   | `GET /api/v2/prime-rate`              | SELIC / prime-rate series              |
 | `client.v2.prime_rate.list_available`  | `GET /api/v2/prime-rate/available`    | Countries with prime-rate data         |
+| `client.v2.fii.list(...)`              | `GET /api/v2/fii/list`                | Real Estate Funds (FIIs) listing       |
+| `client.v2.fii.indicators(syms, ...)`  | `GET /api/v2/fii/indicators`          | FII indicators (NAV, dividend yield)   |
+| `client.v2.fii.historical(syms, ...)`  | `GET /api/v2/fii/historical`          | FII OHLCV historical prices            |
+| `client.v2.fii.dividends(syms, ...)`   | `GET /api/v2/fii/dividends`           | FII dividend payment history           |
+| `client.v2.macro.retrieve(syms, ...)`  | `GET /api/v2/macro`                   | Macro time series (SELIC, IPCA, CDI…)  |
+| `client.v2.macro.list_available`       | `GET /api/v2/macro/available`         | Available macro series                 |
+| `client.v2.treasury.list(...)`         | `GET /api/v2/treasury/list`           | Tesouro Direto bonds listing           |
+| `client.v2.treasury.indicators(syms…)` | `GET /api/v2/treasury/indicators`     | Current rates / prices for bonds       |
 
 All params are passed as Ruby kwargs (snake_case) and the SDK converts them to the camelCase expected by the API (e.g. `sort_by: "volume"` → `?sortBy=volume`).
 
@@ -161,6 +169,49 @@ resp = Brapi.v2.prime_rate.retrieve(country: "brazil")
 resp.prime_rate.each { |p| puts "#{p.date}: #{p.value}% p.a." }
 ```
 
+### Real Estate Funds (FIIs)
+
+```ruby
+# Browse FIIs with pagination
+page = Brapi.v2.fii.list(limit: 20)
+page.fiis.each { |f| puts "#{f.symbol} (#{f.segmento_atuacao}): R$ #{f.price}" }
+puts "Page #{page.pagination.page}/#{page.pagination.total_pages}"
+
+# Current indicators for specific FIIs
+ind = Brapi.v2.fii.indicators(%w[MXRF11 KNRI11])
+ind.fiis.each { |f| puts "#{f.symbol} NAV=#{f.nav_per_share} DY12m=#{f.dividend_yield12m}" }
+
+# Dividend history
+divs = Brapi.v2.fii.dividends("MXRF11")
+divs.dividends.each { |d| puts "#{d.payment_date}: R$ #{d.rate}" }
+```
+
+### Macro time series (SELIC, IPCA, CDI...)
+
+```ruby
+resp = Brapi.v2.macro.retrieve("SELIC")
+result = resp.results.first
+puts "#{result.series.name} (#{result.series.unit})"
+result.observations.each { |o| puts "#{o.date}: #{o.value}" }
+
+# List available series
+Brapi.v2.macro.list_available.results.each { |s| puts "#{s.slug}: #{s.name}" }
+```
+
+### Tesouro Direto (Treasury)
+
+```ruby
+# Browse available bonds
+page = Brapi.v2.treasury.list
+page.results.each do |bond|
+  puts "#{bond.symbol}: buy=#{bond.buy_rate}% sell_price=R$ #{bond.sell_price}"
+  puts "  Rate interpretation: #{bond.rate_info.description}"
+end
+
+# Current rates for specific bonds
+Brapi.v2.treasury.indicators("tesouro-selic-01032031")
+```
+
 ### List/filter stocks
 
 ```ruby
@@ -207,13 +258,12 @@ The SDK automatically retries transient 5xx errors (502/503/504) up to twice wit
 
 ## Roadmap
 
-v0.1 ships the 11 endpoints supported by the official SDKs. Future minor versions will add:
+v0.1 shipped the 11 endpoints supported by the official SDKs. v0.2 added typed
+models for every Quote fundamental module. v0.3 added FIIs, Macro and Tesouro
+Direto. Future minor versions:
 
-- `client.fii.*` — Real Estate Investment Funds (FIIs)
-- `client.macro.*` — Macroeconomic time series
-- `client.options.*` — Options chain & history
-- `client.treasury.*` — Tesouro Direto
-- `client.futures.*` — Futures contracts
+- `client.v2.options.*` — Options chain & history
+- `client.v2.futures.*` — Futures contracts
 
 ## Development
 
