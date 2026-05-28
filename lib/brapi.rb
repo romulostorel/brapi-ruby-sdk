@@ -31,6 +31,15 @@ require "brapi/models/v2/prime_rate_entry"
 require "brapi/models/v2/prime_rate_retrieve_response"
 require "brapi/models/v2/prime_rate_list_available_response"
 
+# Resources — v2 (parent class) must load before its nested classes
+require "brapi/resources/quote"
+require "brapi/resources/available"
+require "brapi/resources/v2"
+require "brapi/resources/v2/crypto"
+require "brapi/resources/v2/currency"
+require "brapi/resources/v2/inflation"
+require "brapi/resources/v2/prime_rate"
+
 require "brapi/client"
 
 module Brapi
@@ -54,6 +63,18 @@ module Brapi
 
     def reset_client!
       @client = nil
+    end
+
+    def quote
+      client.quote
+    end
+
+    def available
+      client.available
+    end
+
+    def v2
+      client.v2
     end
   end
 end
