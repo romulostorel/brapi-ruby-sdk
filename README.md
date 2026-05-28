@@ -124,7 +124,6 @@ quote.cashflow_history             # => [Brapi::Models::CashflowEntry]
 quote.value_added_history          # => [Brapi::Models::ValueAddedEntry]
 quote.historical_data_price        # => [Brapi::Models::HistoricalDataPrice]
 quote.dividends_data               # => Brapi::Models::DividendsData (cash + stock + subscriptions)
-quote.historical_data_price        # => Array of price points (when range/interval are given)
 ```
 
 ### Multi-ticker

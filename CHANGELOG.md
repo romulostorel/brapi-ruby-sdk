@@ -31,12 +31,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `Brapi::Models::Quote#summary_profile`, `#default_key_statistics`,
   `#income_statement_history` (and quarterly), `#cashflow_history` (and
-  quarterly), `#value_added_history` (and quarterly), `#historical_data_price`
-  and `#dividends_data` now return typed `Brapi::Models::*` instances instead
-  of raw Hashes / Arrays. Callers that were treating these as Hashes need to
-  switch to attribute access (`quote.summary_profile.industry` instead of
+  quarterly), `#value_added_history` (and quarterly) and `#dividends_data`
+  now return typed `Brapi::Models::*` instances instead of raw Hashes /
+  Arrays. Callers that were treating these as Hashes need to switch to
+  attribute access (`quote.summary_profile.industry` instead of
   `quote.summary_profile["industry"]`); `Model#raw` still exposes the
   original payload when needed.
+- `Brapi::Models::Quote#historical_data_price` (returned when `range`/
+  `interval` is passed) now resolves to `[Brapi::Models::HistoricalDataPrice]`
+  with typed `open`/`high`/`low`/`close`/`volume`/`adjusted_close` attributes
+  instead of an Array of Hashes. Code building charts off this attribute
+  needs to switch from `entry["close"]` to `entry.close`.
 - `Brapi::Models::BalanceSheetEntry` — fixed JSON-key mismatches for
   `goodwill` (was looking up `goodwill`, API returns `goodWill`),
   `other_current_liabilities` (`otherCurrentLiab`), `other_liabilities`
