@@ -2,8 +2,8 @@
 
 module Brapi
   module Resources
-    # Adds auto-pagination helpers (`#each_page`, `#each`) to a Resource around
-    # an existing list-style method.
+    # Adds auto-pagination helpers (`#each_page`, `#each`, plus a fast
+    # `#count` / `#size`) to a Resource around an existing list-style method.
     #
     # Usage:
     #
@@ -16,18 +16,36 @@ module Brapi
     #     end
     #   end
     #
-    # Two pagination shapes are supported:
+    # ## Requirements on the host
     #
-    # 1. Nested (FII / Treasury): the response has a `pagination` sub-object
-    #    with `page` and `has_next_page`. This is the default.
-    # 2. Flat (Quote#list): the response exposes `current_page` /
-    #    `has_next_page` directly. Pass `has_next:` and `next_page:` lambdas
-    #    to override the readers.
+    # The list-style method named by `via:` (default `:list`) must accept a
+    # `page:` keyword argument. The mixin sets this on every iteration to walk
+    # through pages; if the host's `list` rejects `page:` the first iteration
+    # will raise `ArgumentError`.
     #
-    # A `max_pages:` keyword arg can be passed to `each_page` / `each` (or set
-    # via the global `default_max_pages` argument to the macro) to cap the
-    # walk — protects against runaway loops if the upstream forgets to set
-    # `has_next_page = false`.
+    # ## Pagination shapes
+    #
+    # Two shapes are supported:
+    #
+    # 1. **Nested** (FII / Treasury): the response has a `pagination` sub-object
+    #    with `page`, `has_next_page`, `total_items`. This is the default.
+    # 2. **Flat** (Quote#list): the response exposes `current_page` /
+    #    `has_next_page` / `item_count` directly. Pass `has_next:`, `next_page:`
+    #    and `count_from:` lambdas to override the readers.
+    #
+    # ## Safety
+    #
+    # `max_pages:` (default `DEFAULT_MAX_PAGES`) caps any walk — protects
+    # against runaway loops if the upstream forgets to set
+    # `has_next_page = false`. The cap is checked **before** each fetch so
+    # `max_pages: 0` yields nothing.
+    #
+    # ## #count behaviour
+    #
+    # When called with no args and no block, `#count` fetches **only the first
+    # page** and reads `pagination.total_items` (or whatever `count_from:`
+    # returns), avoiding a full walk. When called with an item or a block, it
+    # delegates to the standard `Enumerable#count` (which walks every page).
     module Paginated
       DEFAULT_MAX_PAGES = 10_000
 
@@ -37,12 +55,14 @@ module Brapi
       end
 
       module ClassMethods
-        def paginates(items:, via: :list, has_next: nil, next_page: nil)
-          has_next  ||= ->(resp) { resp.pagination&.has_next_page }
-          next_page ||= ->(resp) { (resp.pagination&.page || 0) + 1 }
+        def paginates(items:, via: :list, has_next: nil, next_page: nil, count_from: nil)
+          has_next   ||= ->(resp) { resp.pagination&.has_next_page }
+          next_page  ||= ->(resp) { (resp.pagination&.page || 0) + 1 }
+          count_from ||= ->(resp) { resp.pagination&.total_items }
 
           define_each_page(via: via, has_next: has_next, next_page: next_page)
           define_each(items: items)
+          define_count(via: via, count_from: count_from)
         end
 
         private
@@ -54,10 +74,11 @@ module Brapi
             current = params.delete(:page) || 1
             pages_seen = 0
             loop do
+              break if pages_seen >= max_pages
+
               resp = public_send(via, **params, page: current)
               block.call(resp)
               pages_seen += 1
-              break if pages_seen >= max_pages
               break unless has_next.call(resp)
 
               current = next_page.call(resp)
@@ -73,6 +94,19 @@ module Brapi
               resp.public_send(items).each { |item| block.call(item) }
             end
           end
+        end
+
+        def define_count(via:, count_from:)
+          define_method(:count) do |*args, &block|
+            # count(item) and count { block } use Enumerable's filtering
+            # semantics — fall back to the standard walk.
+            return super(*args, &block) unless args.empty? && block.nil?
+
+            total = count_from.call(public_send(via, page: 1))
+            total.nil? ? super(*args, &block) : total
+          end
+
+          define_method(:size) { count }
         end
       end
     end
