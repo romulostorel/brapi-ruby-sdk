@@ -5,7 +5,7 @@ module Brapi
     module V2
       class TreasuryListResponse < Brapi::Model
         attribute :results, type: [Brapi::Models::V2::TreasuryBond]
-        attribute :pagination, type: Brapi::Models::V2::Pagination
+        attribute :pagination, type: Brapi::Models::Pagination
         attribute :requested_at, type: :time
         attribute :took, type: :integer
       end

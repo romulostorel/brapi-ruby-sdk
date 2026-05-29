@@ -42,7 +42,7 @@ require "brapi/models/v2/prime_rate_entry"
 require "brapi/models/v2/prime_rate_retrieve_response"
 require "brapi/models/v2/prime_rate_list_available_response"
 
-require "brapi/models/v2/pagination"
+require "brapi/models/pagination"
 
 require "brapi/models/v2/fii"
 require "brapi/models/v2/fii_dividend"
