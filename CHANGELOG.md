@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-05-28
+
+### Added
+
+- **Auto-pagination** on every paginated resource. Three new public methods
+  show up on `client.quote`, `client.v2.fii` and `client.v2.treasury`:
+  - `#each_page { |page| ... }` — yields one full page response per iteration
+    until the upstream signals `has_next_page = false` (or after `max_pages:`
+    iterations, whichever comes first).
+  - `#each { |item| ... }` — auto-flattens across pages, yielding each row
+    (FII, bond or QuoteListItem) individually.
+  - Without a block, both return an `Enumerator` so the full Ruby
+    Enumerable surface is available: `client.v2.fii.first(10)`,
+    `client.v2.fii.select { |f| f.dividend_yield12m > 0.1 }`,
+    `client.v2.treasury.lazy.find { |b| b.indexer == "ipca" }`, etc.
+- `Brapi::Resources::Paginated` mixin (declarative `paginates items: :fiis`
+  in the resource class) ready to be reused by any future paginated
+  endpoint.
+- `max_pages:` keyword on `#each` / `#each_page` (default `10_000`)
+  protects against runaway loops if a buggy upstream forgets to flip
+  `has_next_page = false`.
+- Resources are now `Enumerable`, so the standard `map` / `select` /
+  `take` / `find` / `lazy` / `count` methods Just Work on paginated
+  endpoints.
+
 ## [0.3.0] - 2026-05-28
 
 ### Added

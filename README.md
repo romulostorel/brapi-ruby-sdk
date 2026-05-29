@@ -220,6 +220,41 @@ resp.stocks.each { |s| puts "#{s.stock} (#{s.name}): R$ #{s.close}" }
 puts "Page #{resp.current_page}/#{resp.total_pages}"
 ```
 
+### Auto-pagination
+
+Every paginated resource (`client.quote.list`, `client.v2.fii.list`,
+`client.v2.treasury.list`) gains `#each_page`, `#each` and the full
+Ruby `Enumerable` surface:
+
+```ruby
+# Yield each row across all pages — lazy by default, stops when
+# the API reports has_next_page = false.
+Brapi.v2.fii.each { |f| puts "#{f.symbol}: DY12m=#{f.dividend_yield12m}" }
+
+# Or yield one page at a time:
+Brapi.v2.treasury.each_page(max_pages: 5) do |page|
+  puts "Page #{page.pagination.page}/#{page.pagination.total_pages}"
+end
+
+# Enumerable methods Just Work — `each` without a block returns
+# an Enumerator, so you can use first/select/lazy/etc.:
+top_yield = Brapi.v2.fii
+  .first(100)
+  .sort_by { |f| -(f.dividend_yield12m || 0) }
+  .first(5)
+
+ipca_bonds = Brapi.v2.treasury
+  .lazy
+  .select { |b| b.indexer == "ipca" }
+  .first(10)
+
+# Custom params pass through to the underlying `list` call:
+Brapi.quote.each(sort_by: "volume", sort_order: "desc") { |s| ... }
+```
+
+`max_pages:` (default `10_000`) caps the walk in case the upstream
+forgets to signal the end. `page:` lets you start from a specific page.
+
 ## Error handling
 
 All errors inherit from `Brapi::Error`:
