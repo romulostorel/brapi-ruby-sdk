@@ -12,7 +12,7 @@ module Brapi
 
         # GET /api/v2/treasury/indicators?symbols=...
         def indicators(symbols, **params)
-          raw = get("/api/v2/treasury/indicators", params: params.merge(symbols: Array(symbols).join(",")))
+          raw = get("/api/v2/treasury/indicators", params: params.merge(symbols: format_symbols(symbols)))
           Brapi::Models::V2::TreasuryIndicatorsResponse.from_h(raw)
         end
       end

@@ -14,6 +14,13 @@ module Brapi
       client.request(:get, path, params: camelize_keys(params))
     end
 
+    # Brapi endpoints that accept a `symbols` query param take a comma-separated
+    # list. Accepts a single String, a single Symbol, or any Enumerable of the
+    # two; always returns a String.
+    def format_symbols(symbols)
+      Array(symbols).join(",")
+    end
+
     def camelize_keys(params)
       return params if params.nil? || params.empty?
 

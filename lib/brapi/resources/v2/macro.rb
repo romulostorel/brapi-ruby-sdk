@@ -6,7 +6,7 @@ module Brapi
       class Macro < Brapi::Resource
         # GET /api/v2/macro?symbols=...
         def retrieve(symbols, **params)
-          raw = get("/api/v2/macro", params: params.merge(symbols: Array(symbols).join(",")))
+          raw = get("/api/v2/macro", params: params.merge(symbols: format_symbols(symbols)))
           Brapi::Models::V2::MacroRetrieveResponse.from_h(raw)
         end
 
