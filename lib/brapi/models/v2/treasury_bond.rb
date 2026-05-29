@@ -13,9 +13,9 @@ module Brapi
         attribute :bond_type, type: :string
         attribute :indexer, type: :string
         attribute :coupon_type, type: :string
-        attribute :maturity_date, type: :string
+        attribute :maturity_date, type: :date
         attribute :duration_days, type: :integer
-        attribute :base_date, type: :string
+        attribute :base_date, type: :date
         attribute :buy_rate, type: :float
         attribute :sell_rate, type: :float
         attribute :buy_price, type: :float

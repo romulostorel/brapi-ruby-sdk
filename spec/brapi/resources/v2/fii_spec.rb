@@ -56,6 +56,17 @@ RSpec.describe Brapi::Resources::V2::Fii do
       expect(first.dividend_yield1m).to eq(0.01009)
       expect(first.monthly_return).to eq(0.011)
       expect(first.shares_outstanding).to eq(460_269_540)
+      expect(first.as_of_date).to eq(Date.new(2026, 4, 1))
+    end
+
+    it "returns nil as_of_date when used to back the list endpoint shape" do
+      list_fii = Brapi::Models::V2::Fii.from_h(
+        "symbol" => "MXRF11", "name" => "FII MAXI RENDA RL",
+        "price" => 9.91, "dividendYield12m" => 0.1205
+      )
+      expect(list_fii.symbol).to eq("MXRF11")
+      expect(list_fii.as_of_date).to be_nil
+      expect(list_fii.dividend_yield1m).to be_nil
     end
   end
 

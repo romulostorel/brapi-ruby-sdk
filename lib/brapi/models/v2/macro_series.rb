@@ -10,7 +10,7 @@ module Brapi
         attribute :unit, type: :string
         attribute :frequency, type: :string
         attribute :category, type: :string
-        attribute :start_date, type: :string
+        attribute :start_date, type: :date
       end
     end
   end

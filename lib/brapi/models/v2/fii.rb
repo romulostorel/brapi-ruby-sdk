@@ -11,6 +11,11 @@ module Brapi
         attribute :name, type: :string
         attribute :cnpj, type: :string
         attribute :mandate, type: :string
+        # NOTE: brapi exposes these two fields in Portuguese (`segmentoAtuacao`,
+        # `tipoGestao`); everything else in the response uses English. If the
+        # upstream renames them in a future API revision, callers reading
+        # `#segmento_atuacao` / `#tipo_gestao` will silently get nil and need
+        # the attribute names updated here.
         attribute :segmento_atuacao, type: :string
         attribute :tipo_gestao, type: :string
         attribute :segment_type, type: :string
@@ -37,7 +42,7 @@ module Brapi
         attribute :total_investors, type: :integer
 
         # Indicators-only fields (nil when returned by /fii/list)
-        attribute :as_of_date, type: :string
+        attribute :as_of_date, type: :date
         attribute :dividend_yield1m, type: :float, json_key: "dividendYield1m"
         attribute :monthly_return, type: :float
         attribute :shares_outstanding, type: :integer

@@ -4,33 +4,36 @@ RSpec.describe Brapi::Resources::V2::Macro do
   let(:client) { Brapi::Client.new(token: "tok") }
 
   describe "#retrieve" do
+    let(:retrieve_body) do
+      {
+        "results" => [
+          { "series" => { "slug" => "selic", "name" => "Taxa Selic",
+                          "description" => "Taxa básica de juros...",
+                          "unit" => "percentPerYear", "frequency" => "daily",
+                          "category" => "interestRate",
+                          "startDate" => "1999-03-05" },
+            "observations" => [
+              { "date" => "2026-05-28", "value" => 14.5 },
+              { "date" => "2026-05-27", "value" => 14.5 }
+            ] }
+        ],
+        "requestedAt" => "2026-05-28T18:00:00Z",
+        "took" => 8
+      }
+    end
+
     it "calls GET /api/v2/macro with symbols and parses series + observations" do
-      stub_brapi(:get, "/api/v2/macro",
-                 query: { symbols: "SELIC" },
-                 response_body: {
-                   "results" => [
-                     { "series" => { "slug" => "selic", "name" => "Taxa Selic",
-                                     "description" => "Taxa básica de juros...",
-                                     "unit" => "percentPerYear", "frequency" => "daily",
-                                     "category" => "interestRate",
-                                     "startDate" => "1999-03-05" },
-                       "observations" => [
-                         { "date" => "2026-05-28", "value" => 14.5 },
-                         { "date" => "2026-05-27", "value" => 14.5 }
-                       ] }
-                   ],
-                   "requestedAt" => "2026-05-28T18:00:00Z",
-                   "took" => 8
-                 })
+      stub_brapi(:get, "/api/v2/macro", query: { symbols: "SELIC" }, response_body: retrieve_body)
 
       resp = client.v2.macro.retrieve("SELIC")
-      expect(resp).to be_a(Brapi::Models::V2::MacroRetrieveResponse)
       first = resp.results.first
+      expect(resp).to be_a(Brapi::Models::V2::MacroRetrieveResponse)
       expect(first.series).to be_a(Brapi::Models::V2::MacroSeries)
-      expect(first.series.slug).to eq("selic")
       expect(first.series.unit).to eq("percentPerYear")
       expect(first.observations.first).to be_a(Brapi::Models::V2::MacroObservation)
       expect(first.observations.first.value).to eq(14.5)
+      expect(first.observations.first.date).to eq(Date.new(2026, 5, 28))
+      expect(first.series.start_date).to eq(Date.new(1999, 3, 5))
     end
 
     it "joins array of symbols with comma" do
