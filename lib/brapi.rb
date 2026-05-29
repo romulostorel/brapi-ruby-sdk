@@ -63,7 +63,9 @@ require "brapi/models/v2/treasury_bond"
 require "brapi/models/v2/treasury_list_response"
 require "brapi/models/v2/treasury_indicators_response"
 
-# Resources — v2 (parent class) must load before its nested classes
+# Resources — v2 (parent class) must load before its nested classes,
+# and Paginated must load before any resource that includes it.
+require "brapi/resources/paginated"
 require "brapi/resources/quote"
 require "brapi/resources/available"
 require "brapi/resources/v2"

@@ -4,6 +4,10 @@ module Brapi
   module Resources
     class V2
       class Fii < Brapi::Resource
+        include Brapi::Resources::Paginated
+
+        paginates items: :fiis
+
         # GET /api/v2/fii/list
         def list(**params)
           raw = get("/api/v2/fii/list", params: params)

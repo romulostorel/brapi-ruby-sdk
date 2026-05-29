@@ -5,6 +5,15 @@ require "cgi"
 module Brapi
   module Resources
     class Quote < Brapi::Resource
+      include Brapi::Resources::Paginated
+
+      # rubocop:disable Style/SymbolProc -- arrow-form keeps the three lambdas visually aligned
+      paginates items: :stocks,
+                has_next: ->(r) { r.has_next_page },
+                next_page: ->(r) { (r.current_page || 0) + 1 },
+                count_from: ->(r) { r.item_count }
+      # rubocop:enable Style/SymbolProc
+
       # GET /api/quote/{tickers}
       def retrieve(tickers, **params)
         tickers_str = Array(tickers).join(",")
