@@ -42,6 +42,27 @@ require "brapi/models/v2/prime_rate_entry"
 require "brapi/models/v2/prime_rate_retrieve_response"
 require "brapi/models/v2/prime_rate_list_available_response"
 
+require "brapi/models/pagination"
+
+require "brapi/models/v2/fii"
+require "brapi/models/v2/fii_dividend"
+require "brapi/models/v2/fii_history"
+require "brapi/models/v2/fii_list_response"
+require "brapi/models/v2/fii_indicators_response"
+require "brapi/models/v2/fii_historical_response"
+require "brapi/models/v2/fii_dividends_response"
+
+require "brapi/models/v2/macro_series"
+require "brapi/models/v2/macro_observation"
+require "brapi/models/v2/macro_result"
+require "brapi/models/v2/macro_retrieve_response"
+require "brapi/models/v2/macro_list_available_response"
+
+require "brapi/models/v2/treasury_rate_info"
+require "brapi/models/v2/treasury_bond"
+require "brapi/models/v2/treasury_list_response"
+require "brapi/models/v2/treasury_indicators_response"
+
 # Resources — v2 (parent class) must load before its nested classes
 require "brapi/resources/quote"
 require "brapi/resources/available"
@@ -50,6 +71,9 @@ require "brapi/resources/v2/crypto"
 require "brapi/resources/v2/currency"
 require "brapi/resources/v2/inflation"
 require "brapi/resources/v2/prime_rate"
+require "brapi/resources/v2/fii"
+require "brapi/resources/v2/macro"
+require "brapi/resources/v2/treasury"
 
 require "brapi/client"
 

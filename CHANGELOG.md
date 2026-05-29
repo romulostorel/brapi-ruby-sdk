@@ -7,6 +7,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-05-28
+
+### Added
+
+- **FIIs (Fundos Imobiliários)** — new `client.v2.fii.*` resource backed by
+  `/api/v2/fii/...`:
+  - `client.v2.fii.list(**params)` — paginated listing
+  - `client.v2.fii.indicators(symbols, **params)` — current NAV / yield / etc.
+  - `client.v2.fii.historical(symbols, **params)` — OHLCV history
+  - `client.v2.fii.dividends(symbols, **params)` — payment history
+- **Macro (séries temporais)** — new `client.v2.macro.*` resource backed by
+  `/api/v2/macro`:
+  - `client.v2.macro.retrieve(symbols, **params)` — series + observations
+    for SELIC, IPCA, CDI and other indicators
+  - `client.v2.macro.list_available` — all available series + categories
+- **Tesouro Direto** — new `client.v2.treasury.*` resource backed by
+  `/api/v2/treasury/...`:
+  - `client.v2.treasury.list(**params)` — paginated bond listing
+  - `client.v2.treasury.indicators(symbols, **params)` — current rates +
+    prices for specific bonds
+- Typed models for every new shape: `Fii`, `FiiDividend`, `FiiHistory`,
+  `MacroSeries`, `MacroObservation`, `MacroResult`, `TreasuryBond`,
+  `TreasuryRateInfo`, `Pagination`, plus per-endpoint Response classes.
+- `Brapi::Models::V2::Pagination` reused across the paginated FII and
+  Treasury list endpoints.
+
+### Notes
+
+- All v0.3 endpoints require a paid brapi token (Startup or Pro plan).
+- Schemas were captured directly from the live API (MXRF11, SELIC,
+  tesouro-selic-01032031); an ad-hoc smoke test against brapi.dev
+  confirmed round-trip parsing for every new endpoint.
+
 ## [0.2.0] - 2026-05-28
 
 ### Added
