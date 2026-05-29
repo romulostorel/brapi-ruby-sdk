@@ -4,6 +4,10 @@ module Brapi
   module Resources
     class V2
       class Treasury < Brapi::Resource
+        include Brapi::Resources::Paginated
+
+        paginates items: :results
+
         # GET /api/v2/treasury/list
         def list(**params)
           raw = get("/api/v2/treasury/list", params: params)

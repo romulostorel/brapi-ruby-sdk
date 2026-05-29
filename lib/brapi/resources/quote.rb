@@ -5,6 +5,12 @@ require "cgi"
 module Brapi
   module Resources
     class Quote < Brapi::Resource
+      include Brapi::Resources::Paginated
+
+      paginates items: :stocks,
+                has_next: lambda(&:has_next_page),
+                next_page: ->(r) { (r.current_page || 0) + 1 }
+
       # GET /api/quote/{tickers}
       def retrieve(tickers, **params)
         tickers_str = Array(tickers).join(",")
