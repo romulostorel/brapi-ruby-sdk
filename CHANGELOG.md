@@ -37,8 +37,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - All v0.3 endpoints require a paid brapi token (Startup or Pro plan).
 - Schemas were captured directly from the live API (MXRF11, SELIC,
-  tesouro-selic-01032031) and the smoke test in `bin/console` confirms
-  round-trip parsing.
+  tesouro-selic-01032031); an ad-hoc smoke test against brapi.dev
+  confirmed round-trip parsing for every new endpoint.
 
 ## [0.2.0] - 2026-05-28
 
