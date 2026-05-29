@@ -46,6 +46,19 @@ RSpec.describe Brapi::Resources::Paginated do
       client.v2.fii.each_page(max_pages: 2) { |p| seen << p.pagination.page }
       expect(seen).to eq([1, 2])
     end
+
+    it "yields nothing when max_pages is 0 (no off-by-one)" do
+      seen = []
+      client.v2.fii.each_page(max_pages: 0) { |p| seen << p }
+      expect(seen).to eq([])
+      expect(WebMock).not_to have_requested(:get, %r{/api/v2/fii/list})
+    end
+
+    it "yields exactly one page when max_pages is 1" do
+      seen = []
+      client.v2.fii.each_page(max_pages: 1) { |p| seen << p.pagination.page }
+      expect(seen).to eq([1])
+    end
   end
 
   describe "#each (auto-flatten across pages)" do
@@ -73,22 +86,38 @@ RSpec.describe Brapi::Resources::Paginated do
   end
 
   describe "flat-pagination shape (Quote)" do
-    it "uses has_next_page / current_page on the response root" do
+    before do
       stub_brapi(:get, "/api/quote/list", query: { page: "1" },
                                           response_body: {
                                             "stocks" => [{ "stock" => "PETR4" }],
                                             "currentPage" => 1, "totalPages" => 2,
-                                            "hasNextPage" => true
+                                            "hasNextPage" => true,
+                                            "itemCount" => 2
                                           })
       stub_brapi(:get, "/api/quote/list", query: { page: "2" },
                                           response_body: {
                                             "stocks" => [{ "stock" => "VALE3" }],
                                             "currentPage" => 2, "totalPages" => 2,
-                                            "hasNextPage" => false
+                                            "hasNextPage" => false,
+                                            "itemCount" => 2
                                           })
+    end
 
+    it "supports #each (flattens across pages)" do
       symbols = client.quote.map(&:stock)
       expect(symbols).to eq(%w[PETR4 VALE3])
+    end
+
+    it "supports #each_page on the flat shape too" do
+      pages_seen = []
+      client.quote.each_page { |p| pages_seen << p.current_page }
+      expect(pages_seen).to eq([1, 2])
+    end
+
+    it "honors max_pages on the flat shape" do
+      pages_seen = []
+      client.quote.each_page(max_pages: 1) { |p| pages_seen << p.current_page }
+      expect(pages_seen).to eq([1])
     end
   end
 
@@ -115,6 +144,77 @@ RSpec.describe Brapi::Resources::Paginated do
 
       symbols = client.v2.fii.each(page: 5).map(&:symbol)
       expect(symbols).to eq(%w[FROM-5])
+    end
+  end
+
+  describe "Enumerable methods directly on the resource" do
+    before do
+      stub_brapi(:get, "/api/v2/fii/list", query: { page: "1" },
+                                           response_body: {
+                                             "fiis" => [{ "symbol" => "AAA11" }, { "symbol" => "BBB11" }],
+                                             "pagination" => { "page" => 1, "hasNextPage" => true,
+                                                               "totalItems" => 3 }
+                                           })
+      stub_brapi(:get, "/api/v2/fii/list", query: { page: "2" },
+                                           response_body: {
+                                             "fiis" => [{ "symbol" => "CCC11" }],
+                                             "pagination" => { "page" => 2, "hasNextPage" => false,
+                                                               "totalItems" => 3 }
+                                           })
+    end
+
+    it "exposes #first(n) without an explicit .each" do
+      expect(client.v2.fii.first(2).map(&:symbol)).to eq(%w[AAA11 BBB11])
+    end
+
+    it "exposes #select / Enumerable filtering" do
+      filtered = client.v2.fii.select { |f| f.symbol.start_with?("B") }
+      expect(filtered.map(&:symbol)).to eq(%w[BBB11])
+    end
+
+    it "exposes #lazy chains" do
+      first_b = client.v2.fii.lazy.find { |f| f.symbol.start_with?("B") }
+      expect(first_b.symbol).to eq("BBB11")
+    end
+  end
+
+  describe "#count / #size fast path" do
+    it "returns pagination.total_items from the first page without walking (nested shape)" do
+      stub_brapi(:get, "/api/v2/fii/list", query: { page: "1" },
+                                           response_body: {
+                                             "fiis" => [{ "symbol" => "AAA11" }],
+                                             "pagination" => { "page" => 1, "hasNextPage" => true,
+                                                               "totalItems" => 1610 }
+                                           })
+
+      expect(client.v2.fii.count).to eq(1610)
+      expect(client.v2.fii.size).to eq(1610)
+      # Only the first page was fetched — no walk
+      expect(WebMock).to have_requested(:get, %r{/api/v2/fii/list})
+        .with(query: { page: "1" }).twice
+    end
+
+    it "returns item_count from the first page on the flat shape (Quote)" do
+      stub_brapi(:get, "/api/quote/list", query: { page: "1" },
+                                          response_body: {
+                                            "stocks" => [{ "stock" => "PETR4" }],
+                                            "itemCount" => 432, "currentPage" => 1,
+                                            "totalPages" => 22, "hasNextPage" => true
+                                          })
+
+      expect(client.quote.count).to eq(432)
+    end
+
+    it "falls back to walking when count is called with a block" do
+      stub_brapi(:get, "/api/v2/fii/list", query: { page: "1" },
+                                           response_body: {
+                                             "fiis" => [{ "symbol" => "AAA11" }, { "symbol" => "BBB11" }],
+                                             "pagination" => { "page" => 1, "hasNextPage" => false,
+                                                               "totalItems" => 99 }
+                                           })
+
+      # With a block we want Enumerable's filtering count, not total_items.
+      expect(client.v2.fii.count { |f| f.symbol.start_with?("A") }).to eq(1)
     end
   end
 end

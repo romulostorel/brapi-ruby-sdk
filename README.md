@@ -255,6 +255,12 @@ Brapi.quote.each(sort_by: "volume", sort_order: "desc") { |s| ... }
 `max_pages:` (default `10_000`) caps the walk in case the upstream
 forgets to signal the end. `page:` lets you start from a specific page.
 
+`count` and `size` take a fast path: they fetch only the first page and
+read `pagination.total_items` (or `item_count` on Quote), so
+`Brapi.v2.fii.count` is one HTTP call, not 81. Pass a block to `count`
+when you want Enumerable filtering semantics — that still walks every
+page, as expected.
+
 ## Error handling
 
 All errors inherit from `Brapi::Error`:
